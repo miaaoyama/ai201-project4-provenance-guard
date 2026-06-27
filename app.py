@@ -93,8 +93,13 @@ Rules:
 - 0 means very likely human-written
 - 1 means very likely AI-generated
 - attribution must be one of: likely_human, uncertain, likely_ai
-- polished but personal writing should not automatically be treated as AI
-- generic, vague, overly balanced writing should score higher
+
+Scoring guidance:
+- Assign 0.10–0.30 when the text has clear personal experience, slang, humor, emotional reactions, unusual details, or uneven human rhythm.
+- Assign 0.40–0.60 when the evidence is mixed, such as polished but specific writing or formal human writing.
+- Assign 0.70–0.95 when the text is generic, formulaic, overly balanced, repetitive, vague, or sounds like common AI-generated prose.
+- Do not mark writing as AI only because it is grammatical or organized.
+- Do not mark writing as human only because it uses the word "I"; look for concrete personal details.
 
 Text:
 {text}
@@ -198,7 +203,7 @@ def combine_scores(llm_score, stylometric_score):
 
 
 def classify_score(score):
-    if score >= 0.80:
+    if score >= 0.60:
         return "likely_ai"
     elif score <= 0.24:
         return "likely_human"
