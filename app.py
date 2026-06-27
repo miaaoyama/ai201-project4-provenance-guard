@@ -104,6 +104,42 @@ Scoring guidance:
 Text:
 {text}
 """
+def calculate_analytics():
+    entries = get_log(limit=1000)
+
+    classification_entries = [
+        entry for entry in entries
+        if entry.get("event_type") == "classification"
+    ]
+
+    appeal_entries = [
+        entry for entry in entries
+        if entry.get("event_type") == "appeal"
+    ]
+
+    total_submissions = len(classification_entries)
+    likely_ai = sum(1 for e in classification_entries if e.get("attribution") == "likely_ai")
+    likely_human = sum(1 for e in classification_entries if e.get("attribution") == "likely_human")
+    uncertain = sum(1 for e in classification_entries if e.get("attribution") == "uncertain")
+    total_appeals = len(appeal_entries)
+
+    appeal_rate = 0
+    if total_submissions > 0:
+        appeal_rate = round((total_appeals / total_submissions) * 100, 2)
+
+    return {
+        "total_submissions": total_submissions,
+        "detection_pattern": {
+            "likely_ai": likely_ai,
+            "likely_human": likely_human,
+            "uncertain": uncertain
+        },
+        "total_appeals": total_appeals,
+        "appeal_rate_percent": appeal_rate,
+        "additional_metric": {
+            "most_recent_event_count": len(entries)
+        }
+    }
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
@@ -368,6 +404,45 @@ def log():
         "entries": get_log()
     })
 
+@app.route("/verify", methods=["POST"])
+def verify_creator():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Request body must be JSON."}), 400
+
+    creator_id = data.get("creator_id")
+    verification_statement = data.get("verification_statement")
+
+    if not creator_id or not verification_statement:
+        return jsonify({
+            "error": "Missing required fields: creator_id and verification_statement."
+        }), 400
+
+    certificate = {
+        "creator_id": creator_id,
+        "verified_creator": True,
+        "certificate": "Verified Human Creator ✓",
+        "verification_method": "Creator submitted a verification statement describing their authorship process.",
+        "display_label": "Verified Human Creator ✓ — this creator completed an additional authorship verification step.",
+        "verified_at": now_utc()
+    }
+
+    write_log({
+        "event_type": "provenance_certificate",
+        "creator_id": creator_id,
+        "timestamp": now_utc(),
+        "verified_creator": True,
+        "certificate": certificate["certificate"],
+        "verification_statement": verification_statement
+    })
+
+    return jsonify(certificate), 200
+
+
+@app.route("/analytics", methods=["GET"])
+def analytics():
+    return jsonify(calculate_analytics()), 200
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
