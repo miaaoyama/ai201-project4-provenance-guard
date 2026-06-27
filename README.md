@@ -398,6 +398,32 @@ Returns the structured audit log containing both classification events and appea
 
 ---
 
+# Testing
+
+The project includes a small `pytest` test suite that validates the deterministic parts of the system without requiring a live Groq API connection.
+
+The automated tests cover:
+
+- Confidence score classification thresholds
+- Confidence score combination logic
+- Transparency label generation
+- Stylometric signal output structure
+- Error handling for invalid `/submit` requests
+- Error handling for invalid `/appeal` requests
+
+Example output:
+
+```text
+============================= test session starts =============================
+collected 6 items
+
+test_app.py ......                                           [100%]
+
+============================== 6 passed ==============================
+```
+
+These tests focus on the core logic of the application and ensure that important components continue to behave correctly as the project evolves.
+
 # Known Limitations
 
 Provenance Guard is designed as a transparency tool rather than a definitive AI detector.
@@ -439,46 +465,14 @@ After reviewing the generated code, I modified the endpoint structure, updated t
 
 ## Example 2
 
-AI assisted with implementing the stylometric heuristics and confidence-scoring logic.
+AI assisted with implementing the stylometric heuristics and confidence scoring logic.
 
 The initial implementation was revised after testing multiple examples. I adjusted the weighting between the Groq signal and the stylometric signal, modified the classification thresholds, improved the Groq prompt, and calibrated the system so that it produced meaningful differences between human, uncertain, and AI classifications.
 
 ---
 
-# Future Improvements
-
-If this project were extended further, possible improvements include:
-
-* adding additional detection signals for an ensemble approach
-* training a calibrated classifier using labeled evaluation data
-* authenticated creator accounts
-* reviewer dashboard for appeals
-* SQLite or PostgreSQL database instead of JSON storage
-* provenance certificates for verified creators
-* analytics dashboard showing detection trends and appeal rates
-* support for additional content types such as image metadata or multimodal submissions
-
----
-
-# Technologies Used
-
-* Python
-* Flask
-* Flask-Limiter
-* Groq API
-* python-dotenv
-* JSON
-* REST API design
-
----
-
-# Conclusion
-
-Provenance Guard demonstrates that AI attribution systems should emphasize transparency rather than certainty. By combining multiple independent signals, communicating confidence clearly, maintaining a complete audit trail, and allowing creators to appeal decisions, the system encourages trust while acknowledging the limitations of current AI detection technology.
-
 # Stretch Features
-
-## Provenance Certificate
+## Provenance Certificate (Stretch Feature)
 
 I implemented a provenance certificate feature through the `POST /verify` endpoint.
 
@@ -494,6 +488,12 @@ Example output:
   "verification_method": "Creator submitted a verification statement describing their authorship process.",
   "verified_creator": true
 }
+```
+
+This verified label is different from the standard transparency labels because it represents an additional creator verification step rather than an automated attribution result.
+
+---
+
 ## Analytics Dashboard (Stretch Feature)
 
 To better understand how the attribution system performs over time, I implemented an analytics endpoint (`GET /analytics`) that summarizes information from the structured audit log.
@@ -525,3 +525,37 @@ Example output:
 ```
 
 This endpoint could easily be connected to a future web dashboard displaying charts and trends for moderators, platform administrators, or researchers monitoring attribution decisions over time.
+
+# Future Improvements
+
+If this project were extended further, possible improvements include:
+
+* adding additional detection signals for an ensemble approach
+* training a calibrated classifier using labeled evaluation data
+* authenticated creator accounts
+* reviewer dashboard for appeals
+* SQLite or PostgreSQL database instead of JSON storage
+* provenance certificates for verified creators
+* analytics dashboard showing detection trends and appeal rates
+* support for additional content types such as image metadata or multimodal submissions
+
+---
+
+# Technologies Used
+
+* Python
+* Flask
+* Flask-Limiter
+* Groq API
+* python-dotenv
+* JSON
+* RESTful API Design
+* pytest
+
+---
+
+# Conclusion
+
+Provenance Guard demonstrates that AI attribution systems should emphasize transparency rather than certainty. By combining multiple independent signals, communicating confidence clearly, maintaining a complete audit trail, and allowing creators to appeal decisions, the system encourages trust while acknowledging the limitations of current AI detection technology.
+
+

@@ -490,13 +490,57 @@ Verification plan:
 
 ---
 
-# Stretch Feature Planning
+# Stretch Features
 
-No stretch feature was implemented for the required submission.
+## Stretch Feature 1: Provenance Certificate
 
-Potential stretch features for future work include:
+### Goal
 
-* analytics dashboard
-* provenance certificate
-* ensemble detection with three or more signals
-* multimodal support
+Allow creators to voluntarily complete an additional verification step that is separate from the AI attribution pipeline.
+
+### Design
+
+A new endpoint (`POST /verify`) accepts:
+
+```json
+{
+  "creator_id": "test-user",
+  "verification_statement": "I can provide drafts, notes, and revision history."
+}
+```
+
+If verification is successful, the system returns a **Verified Human Creator** certificate.
+
+This certificate is displayed independently from the transparency label because it represents creator verification rather than an AI classification.
+
+---
+
+## Stretch Feature 2: Analytics Dashboard
+
+### Goal
+
+Provide an overview of how the attribution system is performing over time.
+
+### Design
+
+A new endpoint (`GET /analytics`) summarizes information collected from the structured audit log.
+
+The analytics endpoint reports:
+
+- total submissions
+- number of likely AI classifications
+- number of likely human classifications
+- number of uncertain classifications
+- total appeals
+- appeal rate
+- total recorded events
+
+These metrics help moderators understand usage patterns without reading individual audit log entries.
+
+---
+
+## Why These Stretch Features
+
+I selected these stretch features because they extend the usability of the system without changing the core attribution pipeline.
+
+The provenance certificate increases trust by allowing creators to verify their identity, while the analytics endpoint helps moderators monitor how the system is performing over time.
